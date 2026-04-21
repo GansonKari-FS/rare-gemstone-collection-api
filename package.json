@@ -1,0 +1,29 @@
+{
+  "name": "rare-gemstone-collection-api",
+  "version": "1.0.0",
+  "description": "A MongoDB API for managing a rare gemstone collection",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "mongodb",
+    "mongoose",
+    "api",
+    "gemstones"
+  ],
+  "author": "Kari Ganson",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mongoose": "^8.13.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
