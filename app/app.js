@@ -1,7 +1,7 @@
-xconst express = require("express");
+const express = require("express");
 const app = express();
 
-const gemRoutes = require("./routes/gemRoutes");
+const gemRoutes = require("../routes/gemRoutes");
 const certifiedGemstoneRoutes = require("./routes/certifiedGemstoneRoutes");
 
 app.use(express.json());
