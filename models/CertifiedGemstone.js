@@ -1,14 +1,34 @@
 const mongoose = require("mongoose");
 
-const certifiedSchema = new mongoose.Schema({
-  certificationLab: String,
-  certificateNumber: String,
-  appraisalValue: Number,
-  isLabCreated: Boolean,
-  gemstone: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Gem",
+const certifiedGemstoneSchema = new mongoose.Schema(
+  {
+    certificationLab: {
+      type: String,
+      required: [true, "Certification lab is required."],
+      trim: true,
+    },
+    certificateNumber: {
+      type: String,
+      required: [true, "Certificate number is required."],
+      trim: true,
+    },
+    appraisalValue: {
+      type: Number,
+      required: [true, "Appraisal value is required."],
+    },
+    isLabCreated: {
+      type: Boolean,
+      default: false,
+    },
+    gemstone: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Gem",
+      required: [true, "Gemstone id is required."],
+    },
   },
-});
+  {
+    timestamps: true,
+  },
+);
 
-module.exports = mongoose.model("CertifiedGemstone", certifiedSchema);
+module.exports = mongoose.model("CertifiedGemstone", certifiedGemstoneSchema);

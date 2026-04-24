@@ -10,6 +10,7 @@ const {
 } = require("../controllers/certifiedGemstoneController");
 
 router.route("/").get(getAll).post(create);
+
 router.route("/:id").get(getById).patch(update).delete(remove);
 
 module.exports = router;

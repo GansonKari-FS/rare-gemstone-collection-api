@@ -3,10 +3,11 @@ const asyncHandler = (fn) => {
     try {
       await fn(req, res);
     } catch (error) {
-      console.error(error);
+      console.error("Error:", error);
       res.status(500).json({
         success: false,
         message: "Server error",
+        error: error.message,
       });
     }
   };
