@@ -3,28 +3,23 @@ const Gem = require("../models/Gem");
 const asyncHandler = require("../middleware/asyncHandler");
 const messages = require("../messages");
 
-// GET ALL (UPDATED WITH FILTER + SELECT + SORT)
+// GET ALL GEMS
+// Includes filtering, Mongo query operators, select, sort, and pagination
 const getAllGems = asyncHandler(async (req, res) => {
-  // 1. Copy query object
   let queryObj = { ...req.query };
 
-  // 2. Remove special fields
-  const removeFields = ["select", "sort"];
+  const removeFields = ["select", "sort", "page", "limit"];
   removeFields.forEach((field) => delete queryObj[field]);
 
-  // 3. Convert to string
   let queryStr = JSON.stringify(queryObj);
 
-  // 4. Add $ to operators
   queryStr = queryStr.replace(
     /\b(gt|gte|lt|lte|in)\b/g,
     (match) => `$${match}`,
   );
 
-  // 5. Create query
   let query = Gem.find(JSON.parse(queryStr));
 
-  // 6. Select fields
   if (req.query.select) {
     const fields = req.query.select.split(",").join(" ");
     query = query.select(fields);
@@ -32,23 +27,32 @@ const getAllGems = asyncHandler(async (req, res) => {
     query = query.select("-__v");
   }
 
-  // 7. Sort
   if (req.query.sort) {
     const sortBy = req.query.sort.split(",").join(" ");
     query = query.sort(sortBy);
   }
 
-  // 8. Execute
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 2;
+  const skip = (page - 1) * limit;
+
+  query = query.skip(skip).limit(limit);
+
   const gems = await query;
+  const total = await Gem.countDocuments(JSON.parse(queryStr));
 
   res.status(200).json({
     success: true,
     count: gems.length,
+    total,
+    page,
+    limit,
+    pages: Math.ceil(total / limit),
     data: gems,
   });
 });
 
-// GET BY ID
+// GET GEM BY ID
 const getGemById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -62,28 +66,69 @@ const getGemById = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: messages.gemstoneNotFound });
   }
 
-  res.json(gem);
+  res.status(200).json({
+    success: true,
+    data: gem,
+  });
 });
 
-// CREATE
+// CREATE GEM
 const createGem = asyncHandler(async (req, res) => {
   const gem = await Gem.create(req.body);
-  res.status(201).json(gem);
-});
 
-// UPDATE
-const updateGem = asyncHandler(async (req, res) => {
-  const gem = await Gem.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
+  res.status(201).json({
+    success: true,
+    message: messages.gemstoneCreated,
+    data: gem,
   });
-
-  res.json(gem);
 });
 
-// DELETE
+// UPDATE GEM
+const updateGem = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: messages.invalidId });
+  }
+
+  const gemExists = await Gem.findById(id);
+
+  if (!gemExists) {
+    return res.status(404).json({ message: messages.gemstoneNotFound });
+  }
+
+  const updatedGem = await Gem.findByIdAndUpdate(id, req.body, {
+    new: true,
+    runValidators: true,
+  }).select("-__v");
+
+  res.status(200).json({
+    success: true,
+    message: messages.gemstoneUpdated,
+    data: updatedGem,
+  });
+});
+
+// DELETE GEM
 const deleteGem = asyncHandler(async (req, res) => {
-  await Gem.findByIdAndDelete(req.params.id);
-  res.json({ message: "Deleted successfully" });
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: messages.invalidId });
+  }
+
+  const gem = await Gem.findById(id);
+
+  if (!gem) {
+    return res.status(404).json({ message: messages.gemstoneNotFound });
+  }
+
+  await gem.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: messages.gemstoneDeleted,
+  });
 });
 
 module.exports = {

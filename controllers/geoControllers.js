@@ -2,9 +2,6 @@ const mongoose = require("mongoose");
 const GeoData = require("../models/GeoData");
 const asyncHandler = require("../middleware/asyncHandler");
 
-// ===============================
-// GET /api/geo-data (fetch from API)
-// ===============================
 const fetchGeoData = asyncHandler(async (req, res) => {
   const { lat, lon } = req.query;
 
@@ -15,7 +12,6 @@ const fetchGeoData = asyncHandler(async (req, res) => {
     });
   }
 
-  // Example API (Open-Meteo - no API key needed)
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
 
   const response = await fetch(url);
@@ -27,9 +23,6 @@ const fetchGeoData = asyncHandler(async (req, res) => {
   });
 });
 
-// ===============================
-// POST /api/geo-data (save to MongoDB)
-// ===============================
 const createGeoData = asyncHandler(async (req, res) => {
   const { latitude, longitude, displayName, city, state, country, rawData } =
     req.body;
@@ -57,9 +50,6 @@ const createGeoData = asyncHandler(async (req, res) => {
   });
 });
 
-// ===============================
-// GET /api/geo-data/all
-// ===============================
 const getAllGeoData = asyncHandler(async (req, res) => {
   const geoData = await GeoData.find();
 
@@ -70,9 +60,6 @@ const getAllGeoData = asyncHandler(async (req, res) => {
   });
 });
 
-// ===============================
-// GET /api/geo-data/:id
-// ===============================
 const getGeoDataById = asyncHandler(async (req, res) => {
   const geo = await GeoData.findById(req.params.id);
 
@@ -89,9 +76,6 @@ const getGeoDataById = asyncHandler(async (req, res) => {
   });
 });
 
-// ===============================
-// EXPORTS (VERY IMPORTANT)
-// ===============================
 module.exports = {
   fetchGeoData,
   createGeoData,
