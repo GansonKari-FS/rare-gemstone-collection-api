@@ -4,8 +4,9 @@
   "description": "A MongoDB API for managing a rare gemstone collection",
   "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "test": "jest --coverage --runInBand"
   },
   "keywords": [
     "node",
@@ -24,6 +25,8 @@
     "mongoose": "^8.23.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "jest": "^30.3.0",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   }
 }
