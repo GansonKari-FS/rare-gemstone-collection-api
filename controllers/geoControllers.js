@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const GeoData = require("../models/GeoData");
 const asyncHandler = require("../middleware/asyncHandler");
 
+// GET /api/geo-data
 const fetchGeoData = asyncHandler(async (req, res) => {
   const { lat, lon } = req.query;
 
@@ -23,6 +24,7 @@ const fetchGeoData = asyncHandler(async (req, res) => {
   });
 });
 
+// POST /api/geo-data
 const createGeoData = asyncHandler(async (req, res) => {
   const { latitude, longitude, displayName, city, state, country, rawData } =
     req.body;
@@ -50,18 +52,54 @@ const createGeoData = asyncHandler(async (req, res) => {
   });
 });
 
+// GET /api/geo-data/all
 const getAllGeoData = asyncHandler(async (req, res) => {
-  const geoData = await GeoData.find();
+  let query = GeoData.find();
+
+  // SELECT
+  if (req.query.select) {
+    const fields = req.query.select.split(",").join(" ");
+    query = query.select(fields);
+  } else {
+    query = query.select("-__v");
+  }
+
+  // SORT
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(",").join(" ");
+    query = query.sort(sortBy);
+  }
+
+  // PAGINATION
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const skip = (page - 1) * limit;
+
+  query = query.skip(skip).limit(limit);
+
+  const geoData = await query;
 
   res.status(200).json({
     success: true,
     count: geoData.length,
+    page,
+    limit,
     data: geoData,
   });
 });
 
+// GET /api/geo-data/:id
 const getGeoDataById = asyncHandler(async (req, res) => {
-  const geo = await GeoData.findById(req.params.id);
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid MongoDB ID",
+    });
+  }
+
+  const geo = await GeoData.findById(id).select("-__v");
 
   if (!geo) {
     return res.status(404).json({

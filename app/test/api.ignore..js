@@ -3,7 +3,7 @@ require("dotenv").config();
 const request = require("supertest");
 const mongoose = require("mongoose");
 
-const app = require("../app/app");
+const app = require("../app");
 const Gem = require("../models/Gem");
 const CertifiedGemstone = require("../models/CertifiedGemstone");
 
