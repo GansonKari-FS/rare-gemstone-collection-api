@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-
 const gemRoutes = require("../routes/gemRoutes");
 const certifiedGemstoneRoutes = require("../routes/certifiedGemstoneRoutes");
 const geoRoutes = require("../routes/geoRoutes");

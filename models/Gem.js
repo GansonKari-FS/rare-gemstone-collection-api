@@ -1,38 +1,12 @@
 const mongoose = require("mongoose");
 
-const gemSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "Gem name is required."],
-      trim: true,
-    },
-    color: {
-      type: String,
-      required: [true, "Color is required."],
-      trim: true,
-    },
-    carat: {
-      type: Number,
-      required: [true, "Carat is required."],
-    },
-    origin: {
-      type: String,
-      required: [true, "Origin is required."],
-      trim: true,
-    },
-    rarity: {
-      type: String,
-      default: "Rare",
-    },
-    inStock: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
+const gemstoneSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  color: { type: String, required: true },
+  carat: { type: Number, required: true },
+  origin: { type: String, required: true },
+  rarity: { type: String, required: true },
+  inStock: { type: Boolean, default: true },
+});
 
-module.exports = mongoose.model("Gem", gemSchema);
+module.exports = mongoose.model("Gemstone", gemstoneSchema);

@@ -4,6 +4,7 @@ import {
   createGemstone,
   deleteGemstone,
 } from "./api/gemstoneApi";
+import "./App.css";
 
 function App() {
   const [gemstones, setGemstones] = useState([]);
@@ -21,12 +22,8 @@ function App() {
   }, []);
 
   const loadGemstones = async () => {
-    try {
-      const data = await getGemstones();
-      setGemstones(data);
-    } catch (err) {
-      console.error(err);
-    }
+    const data = await getGemstones();
+    setGemstones(data);
   };
 
   const handleChange = (e) => {
@@ -37,41 +34,37 @@ function App() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("SUBMIT WORKS");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      await createGemstone(formData);
-      loadGemstones();
+  await createGemstone({
+    ...formData,
+    carat: Number(formData.carat),
+  });
 
-      setFormData({
-        name: "",
-        color: "",
-        carat: "",
-        origin: "",
-        rarity: "",
-        inStock: true,
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // 🔥 FORCE reload AFTER POST completes
+  const updated = await getGemstones();
+  setGemstones(updated);
 
+  setFormData({
+    name: "",
+    color: "",
+    carat: "",
+    origin: "",
+    rarity: "",
+    inStock: true,
+  });
+};
   const handleDelete = async (id) => {
-    try {
-      await deleteGemstone(id);
-      loadGemstones();
-    } catch (err) {
-      console.error(err);
-    }
+    await deleteGemstone(id);
+    loadGemstones();
   };
 
   return (
-    <div>
-      <h1>Gemstone App</h1>
+    <div className="app">
+      <h1 className="title">💎 Rare Gemstone Collection 💎</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form className="gem-form" onSubmit={handleSubmit}>
         <input
           name="name"
           value={formData.name}
@@ -113,17 +106,23 @@ function App() {
           In Stock
         </label>
 
-        <button type="submit">Add</button>
+        <button type="submit">Add Gemstone</button>
       </form>
 
-      <ul>
+      <div className="gem-list">
         {gemstones.map((gem) => (
-          <li key={gem._id}>
-            {gem.name} - {gem.color}
+          <div className="gem-card" key={gem._id}>
+            <h3>{gem.name}</h3>
+            <p>Color: {gem.color}</p>
+            <p>Carat: {gem.carat}</p>
+            <p>Origin: {gem.origin}</p>
+            <p>Rarity: {gem.rarity}</p>
+            <p>{gem.inStock ? "In Stock" : "Out of Stock"}</p>
+
             <button onClick={() => handleDelete(gem._id)}>Delete</button>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
