@@ -4,7 +4,6 @@ import {
   createGemstone,
   deleteGemstone,
 } from "./api/gemstoneApi";
-import "./App.css";
 
 function App() {
   const [gemstones, setGemstones] = useState([]);
@@ -17,18 +16,21 @@ function App() {
     inStock: true,
   });
 
-  const loadGemstones = async () => {
-    const data = await getGemstones();
-    setGemstones(data);
-  };
-
   useEffect(() => {
     loadGemstones();
   }, []);
 
+  const loadGemstones = async () => {
+    try {
+      const data = await getGemstones();
+      setGemstones(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
@@ -37,146 +39,91 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("SUBMIT WORKS");
 
-    await createGemstone(formData);
+    try {
+      await createGemstone(formData);
+      loadGemstones();
 
-    setFormData({
-      name: "",
-      color: "",
-      carat: "",
-      origin: "",
-      rarity: "",
-      inStock: true,
-    });
-
-    loadGemstones();
+      setFormData({
+        name: "",
+        color: "",
+        carat: "",
+        origin: "",
+        rarity: "",
+        inStock: true,
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDelete = async (id) => {
-    await deleteGemstone(id);
-    loadGemstones();
+    try {
+      await deleteGemstone(id);
+      loadGemstones();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="app">
-      <section className="hero">
-        <div className="hero-gem hero-gem-left">💎</div>
+    <div>
+      <h1>Gemstone App</h1>
 
-        <div>
-          <h1>Rare Gemstone Collection</h1>
-          <p>
-            This React client connects to my Node.js, Express, MongoDB, and
-            Mongoose API.
-          </p>
-        </div>
+      <form onSubmit={handleSubmit}>
+        <input
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Name"
+        />
+        <input
+          name="color"
+          value={formData.color}
+          onChange={handleChange}
+          placeholder="Color"
+        />
+        <input
+          name="carat"
+          value={formData.carat}
+          onChange={handleChange}
+          placeholder="Carat"
+        />
+        <input
+          name="origin"
+          value={formData.origin}
+          onChange={handleChange}
+          placeholder="Origin"
+        />
+        <input
+          name="rarity"
+          value={formData.rarity}
+          onChange={handleChange}
+          placeholder="Rarity"
+        />
 
-        <div className="hero-gem hero-gem-right">💚</div>
-      </section>
-
-      <section className="form-section">
-        <h2>✧ Add a Gemstone ✧</h2>
-
-        <form className="gem-form" onSubmit={handleSubmit}>
+        <label>
           <input
-            type="text"
-            name="name"
-            placeholder="💎 Gemstone name"
-            value={formData.name}
+            type="checkbox"
+            name="inStock"
+            checked={formData.inStock}
             onChange={handleChange}
-            required
           />
+          In Stock
+        </label>
 
-          <input
-            type="text"
-            name="color"
-            placeholder="🎨 Color"
-            value={formData.color}
-            onChange={handleChange}
-            required
-          />
+        <button type="submit">Add</button>
+      </form>
 
-          <input
-            type="number"
-            name="carat"
-            placeholder="💠 Carat"
-            value={formData.carat}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="text"
-            name="origin"
-            placeholder="🌎 Origin"
-            value={formData.origin}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="text"
-            name="rarity"
-            placeholder="⭐ Rarity"
-            value={formData.rarity}
-            onChange={handleChange}
-            required
-          />
-
-          <label className="checkbox-row">
-            <input
-              type="checkbox"
-              name="inStock"
-              checked={formData.inStock}
-              onChange={handleChange}
-            />
-            In stock
-          </label>
-
-          <button type="submit">💎 Add Gemstone 💎</button>
-        </form>
-      </section>
-
-      <section className="gem-list">
+      <ul>
         {gemstones.map((gem) => (
-          <div className="gem-card" key={gem._id}>
-            <div className="gem-image">
-              {gem.name.toLowerCase().includes("ruby")
-                ? "💖"
-                : gem.name.toLowerCase().includes("emerald")
-                  ? "💚"
-                  : "💎"}
-            </div>
-
-            <h3>{gem.name}</h3>
-
-            <p>
-              <span>🎨 Color:</span> {gem.color}
-            </p>
-            <p>
-              <span>💠 Carat:</span> {gem.carat}
-            </p>
-            <p>
-              <span>🌎 Origin:</span> {gem.origin}
-            </p>
-            <p>
-              <span>⭐ Rarity:</span> {gem.rarity}
-            </p>
-            <p>
-              <span>✅ Status:</span>{" "}
-              {gem.inStock ? "In Stock" : "Out of Stock"}
-            </p>
-
-            <button
-              className="delete-btn"
-              onClick={() => handleDelete(gem._id)}
-            >
-              🗑 Delete
-            </button>
-          </div>
+          <li key={gem._id}>
+            {gem.name} - {gem.color}
+            <button onClick={() => handleDelete(gem._id)}>Delete</button>
+          </li>
         ))}
-      </section>
-
-      <div className="footer-text">✦ Collect. Admire. Appreciate. ✦</div>
+      </ul>
     </div>
   );
 }
