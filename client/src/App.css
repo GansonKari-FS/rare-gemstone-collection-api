@@ -33,12 +33,9 @@ body {
 }
 
 .hero h1 {
-  margin: 0;
+  margin: 40 0 10px;
   font-size: 54px;
-  color: #fff7d6;
-  text-shadow:
-    3px 3px 0 #7c00ff,
-    0 0 18px #00fff0;
+  color: #00e5ff;
 }
 
 .hero p {
